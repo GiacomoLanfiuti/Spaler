@@ -19,7 +19,7 @@ ScalaPregel| Classe in Scala contenente i metodi per la gestione del GraphX
 
 Inoltre, sono presenti le classi necessarie da avere in modo tale da poter importare i file di tipo .fastq nell'implementazione: Record, QRecord, PartialSequence, FASTQInputFileFormat, FASTQReadsRecordRecorder.
 
-* `File Gradle`: necessario per l'utilizzo dell'IDE Intellij. Sono presenti le dependency utilizzate.
+* `Build`: File Gradle necessario per l'utilizzo dell'IDE Intellij. Sono presenti le dependencies utilizzate.
 * `Data`: contiene i file .fatsq contenenti le sequenza genomiche da analizzare.
 
 
