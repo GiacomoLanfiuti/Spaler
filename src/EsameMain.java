@@ -54,12 +54,12 @@ public class EsameMain {
         System.out.println("Comincia il processo di sequenziamento");
 
         //PULIZIA DELLE STRINGHE
-        JavaRDD<String> dSequenze = dSequences.sample(false, 0.0001).values();
+        JavaRDD<String> dSequenze = dSequences.sample(false, 0.2).values();
         JavaRDD<String> dSequenzePulite = dSequenze.map(x -> x.replace("N", "A"));
         System.out.println("Le reads ricevute in input sono: "+dSequenzePulite.count());
 
         //CREAZIONI DEI VERTICI
-        int k=10;
+        int k=20; //Se si modifica il valore di k, attuare la modfica anche nelle classi "CreaRep" e "CreaArchi"
         JavaPairRDD<Long,Integer > rep = dSequenzePulite.flatMapToPair(new CreaRep()).mapToPair(x-> new Tuple2<>(conversioneLong(x._1), x._2));
         JavaPairRDD<Long, Integer> vertici = rep.reduceByKey((x,y)-> x+y);
         JavaPairRDD<Long, Integer> verticiRimossi = vertici.filter(x -> x._2==1);
@@ -74,7 +74,7 @@ public class EsameMain {
         //CREAZIONE DEL GRAFO DI DE BRUJIN
         System.out.println("CREAZIONE DEL GRAFO DI DE BRUJIN");
         GraphFrame grafoGraph = scalaPregel.generaDF(archiNoPol);
-        System.out.println("FATTO");
+        System.out.println("ESEGUITA");
 
         //RAPPRESENTAZIONE IN NEO4J DEL GRAFO DI DE BRUJIN APPENA COSTRUITO
 
@@ -92,7 +92,7 @@ public class EsameMain {
             System.out.println("CONNESSIONE CON NEO4J OTTENUTA");
 
             //CREAZIONE DELLE QUERY PER GENERARE NODI E ARCHI
-            System.out.println("Iniziano il running delle query");
+            System.out.println("Inizia il running delle query");
             String cqlBase = "match (n) detach delete n";
             s.run(cqlBase);
 
@@ -112,7 +112,7 @@ public class EsameMain {
 
         //FINE NEO 4J
 
-        //INDIVIDUAZIONE VERTICI V1-1, V1, Vn-m, Vn, Vattivi e Vmorti
+        //INDIVIDUAZIONE VERTICI V1-1, V1, Vn-m, Vn, Vattivi e Vspenti
         Dataset<Row> v11Data =grafoGraph.inDegrees().filter("inDegree==1").join(grafoGraph.outDegrees().filter("outDegree==1"), "id").select("id");
         Dataset<Row> vnmData= grafoGraph.inDegrees().join(grafoGraph.outDegrees(), "id").filter("inDegree!=1 or outDegree!=1").select("id");
         Dataset<Row> v1Data = grafoGraph.degrees().filter("degree==1").select("id");
@@ -123,15 +123,10 @@ public class EsameMain {
         Dataset<Row> vAttivi = v11Sorround.union(v1Data);
 
         System.out.println("Vertici totali: "+grafoGraph.vertices().count());
+        System.out.println("Archi totali: "+grafoGraph.edges().count());
 
-        System.out.println("Vertici 1-1: "+v11Data.count());
-        System.out.println("Vertici 1: "+v1Data.count());
-        System.out.println("Vertici n-m: "+vnmData.count());
-        System.out.println("Vertici n Alt: "+vnData.count());
-
-        System.out.println("Vertici 1-1 Sorround: "+v11Sorround.count());
         System.out.println("Vertici Attivi: "+vAttivi.count());
-        System.out.println("Vertici Disattivi: "+vSpenti.count());
+        System.out.println("Vertici Spenti: "+vSpenti.count());
 
         System.out.println("Inizia la parte su Scala");
 
@@ -155,17 +150,14 @@ public class EsameMain {
             }
             return contig;
         });
-
-        System.out.println(contigs.collect());
+        System.out.println("Esempio di 10 contig generate: "+contigs.take(10));
         System.out.println("Il numero di contigs generate è: "+contigs.count());
         JavaPairRDD<String, Integer> contigsLength = contigs.mapToPair(x-> new Tuple2<>(x._2, x._2.length()));
         System.out.println("La contig più lunga è formata da: "+contigsLength.values().top(1));
         JavaPairRDD<Long, String> contigsReal = contigs.filter(x -> x._2.length()>k);
-        JavaPairRDD<Integer, Integer> sumContig = contigsLength.mapToPair(x -> new Tuple2<Integer, Integer>(1, x._2));
+        JavaPairRDD<Integer, Integer> sumContig = contigsLength.mapToPair(x -> new Tuple2<>(1, x._2));
         JavaPairRDD<Integer, Integer> meanContig = sumContig.reduceByKey((x,y)->x+y);
-        System.out.println("La lunghezza media delle contigs è: "+(double)(meanContig.values().first()/contigsReal.count()));
-
-
+        System.out.println("La lunghezza media delle contigs formate da almeno 2 vertici è: "+(double)(meanContig.values().first()/contigsReal.count()));
     }
 
     public static long conversioneLong(String kmer) {
