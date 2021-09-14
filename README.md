@@ -20,7 +20,7 @@ ScalaPregel| Classe in Scala contenente i metodi per la gestione del GraphX
 Inoltre, sono presenti le classi necessarie da avere in modo tale da poter importare i file di tipo .fastq nell'implementazione: Record, QRecord, PartialSequence, FASTQInputFileFormat, FASTQReadsRecordRecorder.
 
 * `Build`: File Gradle necessario per l'utilizzo dell'IDE Intellij. Sono presenti le dependencies utilizzate.
-* `Data`: contiene i file .fatsq contenenti le sequenza genomiche da analizzare.
+* `data`: contiene i file .fatsq contenenti le sequenza genomiche da analizzare.
 
 
 ### Esposizione algoritmo
@@ -37,11 +37,12 @@ L'implementazione dell'algortimo viene integrata con il database NoSQL Neo4J, tr
 Versione Neo4j Enterprise 4.3.3 per Neo4j: https://neo4j.com/download/
 
 Consigliamo per l'utilizzo del codice di creare un progetto su Intellij e inserire all'interno della cartella che si genera i file presenti nel repository.
+Se si vogliono effettuare altre operazione di sequenziamento del genoma oltre ai file presenti nella cartella `data` consigliamo di utilizzare i dataset presenti nel seguente link: http://gage.cbcb.umd.edu/data/. 
 
 
 ### Teconologie utilizzate
 Nella lavorazione è stato utilizzato l'ambiente di sviluppo integrato Intellij e i linguaggi di programmazione Java e Scala. 
 Per l'implementazione distribuita si è riscorso all'utilizzo di Apache Spark e GraphX.
-Infine, per la rappresentazioen grafica è stato utilizzato il database NoSQL Neo4J.
+Infine, per la rappresentazione grafica è stato utilizzato il database NoSQL Neo4J.
 
 
