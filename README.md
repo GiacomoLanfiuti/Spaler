@@ -37,7 +37,7 @@ L'implementazione dell'algortimo viene integrata con il database NoSQL Neo4J, tr
 Versione Neo4j Enterprise 4.3.3 per Neo4j: https://neo4j.com/download/
 
 Consigliamo per l'utilizzo del codice di creare un progetto su Intellij e inserire all'interno della cartella che si genera i file presenti nel repository.
-Se si vogliono effettuare altre operazione di sequenziamento del genoma oltre ai file presenti nella cartella `data` consigliamo di utilizzare i dataset presenti nel seguente link: http://gage.cbcb.umd.edu/data/. 
+Se si vogliono effettuare altre operazioni di sequenziamento del genoma, oltre ai file presenti nella cartella `data`, consigliamo di utilizzare i dataset presenti nel seguente link: http://gage.cbcb.umd.edu/data/. 
 
 
 ### Teconologie utilizzate
