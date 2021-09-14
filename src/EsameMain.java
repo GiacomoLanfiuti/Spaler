@@ -54,12 +54,12 @@ public class EsameMain {
         System.out.println("Comincia il processo di sequenziamento");
 
         //PULIZIA DELLE STRINGHE
-        JavaRDD<String> dSequenze = dSequences.sample(false, 0.2).values();
+        JavaRDD<String> dSequenze = dSequences.sample(false, 0.0001).values();
         JavaRDD<String> dSequenzePulite = dSequenze.map(x -> x.replace("N", "A"));
         System.out.println("Le reads ricevute in input sono: "+dSequenzePulite.count());
 
         //CREAZIONI DEI VERTICI
-        int k=20; //Se si modifica il valore di k, attuare la modfica anche nelle classi "CreaRep" e "CreaArchi"
+        int k=10; //Se si modifica il valore di k, attuare la modfica anche nelle classi "CreaRep" e "CreaArchi"
         JavaPairRDD<Long,Integer > rep = dSequenzePulite.flatMapToPair(new CreaRep()).mapToPair(x-> new Tuple2<>(conversioneLong(x._1), x._2));
         JavaPairRDD<Long, Integer> vertici = rep.reduceByKey((x,y)-> x+y);
         JavaPairRDD<Long, Integer> verticiRimossi = vertici.filter(x -> x._2==1);
@@ -102,8 +102,8 @@ public class EsameMain {
             }
 
             for (Arco arco : archiNeo) {
-                Long n1 = arco.getSrc();
-                Long n2 = arco.getDst();
+                long n1 = arco.getSrc();
+                long n2 = arco.getDst();
                 String cql = "match (n1:KMer {id_KMer:'" + decodificaLong(n1,k) + "'}), (n2:KMer {id_KMer:'" + decodificaLong(n2,k) + "'}) create (n1)-[e:edge]->(n2) return n1, n2";
                 s.run(cql);
             }
@@ -119,7 +119,8 @@ public class EsameMain {
         Dataset<Row> vnData = grafoGraph.vertices().except(grafoGraph.inDegrees().select("id")).join(grafoGraph.outDegrees().filter("outDegree>1"), "id").select("id").union(grafoGraph.vertices().except(grafoGraph.outDegrees().select("id")).join(grafoGraph.inDegrees().filter("inDegree>1"), "id").select("id"));
 
         Dataset<Row> vSpenti = vnmData.union(vnData);
-        Dataset<Row> v11Sorround = grafoGraph.edges().join(vSpenti.withColumnRenamed("id", "src"), "src").select("dst").withColumnRenamed("dst", "id").join(v11Data, "id").union(grafoGraph.edges().join(vSpenti.withColumnRenamed("id", "dst"), "dst").select("src").withColumnRenamed("src", "id").join(v11Data, "id")).select("id").distinct();
+        Dataset<Row> v11Sorround = grafoGraph.edges().join(vSpenti.withColumnRenamed("id", "src"),
+                "src").select("dst").withColumnRenamed("dst", "id").join(v11Data, "id").union(grafoGraph.edges().join(vSpenti.withColumnRenamed("id", "dst"), "dst").select("src").withColumnRenamed("src", "id").join(v11Data, "id")).select("id").distinct();
         Dataset<Row> vAttivi = v11Sorround.union(v1Data);
 
         System.out.println("Vertici totali: "+grafoGraph.vertices().count());
@@ -136,8 +137,8 @@ public class EsameMain {
 
         //RICOSTRUZIONE DALL'OUTPUT DEL PREGEL
         JavaRDD<Tuple3<Long, Long, Integer>> gruppi2 = gruppi.map(x-> new Tuple3<>(x.getLong(0),x.getLong(1), x.getInt(2)));
-        JavaPairRDD<Integer, Arco> gruppi3 = gruppi2.mapToPair(x-> new Tuple2<>(x._3(), new Arco(x._1(),x._2()))).sortByKey();
-        JavaPairRDD<Long, Tuple2<Long, Integer>> gruppi4 = gruppi3.mapToPair(x-> new Tuple2<>(x._2.getDst(), new Tuple2<>(x._2.getSrc(), x._1)));
+        JavaPairRDD<Integer, Tuple2<Long, Long>> gruppi3 = gruppi2.mapToPair(x-> new Tuple2<>(x._3(), new Tuple2<>(x._1(),x._2()))).sortByKey();
+        JavaPairRDD<Long, Tuple2<Long, Integer>> gruppi4 = gruppi3.mapToPair(x-> new Tuple2<>(x._2._2(), new Tuple2<>(x._2._1(), x._1)));
         JavaPairRDD<Long, Iterable<Tuple2<Long, Integer>>> gruppi5 = gruppi4.groupByKey();
 
         //COSTRUZIONE DELLE CONTIGS
