@@ -12,7 +12,7 @@ public class CreaRep implements PairFlatMapFunction<String, String, Integer> {
 
 	@Override
 	public Iterator<Tuple2<String,Integer>> call(String sequence) {
-        int k=10;
+        int k=20;
 
         List<Tuple2<String,Integer>> list = new ArrayList<Tuple2<String,Integer>>();
         for (int i=0; i < sequence.length()-k+1 ; i++) {
