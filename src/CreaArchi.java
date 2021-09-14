@@ -11,7 +11,7 @@ import scala.Tuple2;
 public class CreaArchi implements PairFlatMapFunction<String, Tuple2<String,String>, Tuple2<String,String>> {
 
     public Iterator<Tuple2<Tuple2<String,String>, Tuple2<String,String>>> call(String sequence) {
-        int k = 10;
+        int k = 20;
 
         List<Tuple2<String, String>> list2 = new ArrayList<>();
         List<Tuple2<Tuple2<String,String>, Tuple2<String,String>>> list = new ArrayList<>();
