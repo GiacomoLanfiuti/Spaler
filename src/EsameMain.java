@@ -55,7 +55,7 @@ public class EsameMain {
 
         //PULIZIA DELLE STRINGHE
         JavaRDD<String> dSequenze = dSequences.sample(false, 0.0001).values();
-        JavaRDD<String> dSequenzePulite = dSequenze.map(x -> x.replace("N", "A"));
+        JavaRDD<String> dSequenzePulite = dSequenze.map(x -> x.replaceAll("[^ACGT]", "A"));
         System.out.println("Le reads ricevute in input sono: "+dSequenzePulite.count());
 
         //CREAZIONI DEI VERTICI
